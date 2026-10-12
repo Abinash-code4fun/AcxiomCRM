@@ -1,0 +1,115 @@
+@model AcxiomCRM.Models.ViewModels.FollowUpFormViewModel
+@{
+    ViewData["Title"] = $"Edit Activity - {Model.Subject}";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card crm-card">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold mb-0"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Activity</h4>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Activities
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label asp-for="Subject" class="form-label"></label>
+                            <input asp-for="Subject" class="form-control" />
+                            <span asp-validation-for="Subject" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Type" class="form-label"></label>
+                            <select asp-for="Type" class="form-select">
+                                @foreach (var t in Enum.GetValues<FollowUpType>())
+                                {
+                                    <option value="@t" selected="@(Model.Type == t)">@t</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="ScheduledDate" class="form-label"></label>
+                            <input asp-for="ScheduledDate" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="ScheduledDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="AssignedToId" class="form-label"></label>
+                            <select asp-for="AssignedToId" class="form-select" asp-items="Model.Users">
+                                <option value="">-- Unassigned --</option>
+                            </select>
+                            <span asp-validation-for="AssignedToId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select">
+                                @foreach (var s in Enum.GetValues<FollowUpStatus>())
+                                {
+                                    <option value="@s" selected="@(Model.Status == s)">@s</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Target Record Association -->
+                        <div class="col-12 pt-2">
+                            <h6 class="fw-bold text-muted small text-uppercase">Link To Target Record</h6>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label asp-for="CustomerId" class="form-label small">Customer</label>
+                                    <select asp-for="CustomerId" class="form-select form-select-sm" asp-items="Model.Customers">
+                                        <option value="">-- None --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label asp-for="LeadId" class="form-label small">Lead</label>
+                                    <select asp-for="LeadId" class="form-select form-select-sm" asp-items="Model.Leads">
+                                        <option value="">-- None --</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label asp-for="OpportunityId" class="form-label small">Opportunity Deal</label>
+                                    <select asp-for="OpportunityId" class="form-select form-select-sm" asp-items="Model.Opportunities">
+                                        <option value="">-- None --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <button type="submit" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger" onclick="return confirm('Delete this follow-up?');">
+                            <i class="bi bi-trash me-1"></i> Delete Activity
+                        </button>
+                        <div class="d-flex gap-2">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

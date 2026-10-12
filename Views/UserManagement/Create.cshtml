@@ -1,0 +1,70 @@
+@model AcxiomCRM.Models.ViewModels.UserCreateViewModel
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card crm-card">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h4 class="fw-bold mb-0"><i class="bi bi-person-plus text-primary me-2"></i>Create New CRM User</h4>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Users
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" placeholder="e.g. Rachel Adams" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="rachel.adams@acxiomcrm.local" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Initial password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                            <div class="form-text small">Must contain uppercase, lowercase, number, and special character.</div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Role" class="form-label"></label>
+                            <select asp-for="Role" class="form-select" asp-items="Model.Roles">
+                                <option value="">-- Select Role --</option>
+                            </select>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="IsActive" id="isActiveSwitch" checked />
+                                <label class="form-check-label fw-bold" for="isActiveSwitch">Active Account</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-person-check me-1"></i> Provision Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

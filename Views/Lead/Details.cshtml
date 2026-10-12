@@ -1,0 +1,173 @@
+@model AcxiomCRM.Models.ViewModels.LeadDetailsViewModel
+@{
+    ViewData["Title"] = $"Lead - {Model.Lead.FullName}";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h2 class="fw-bold mb-0">@Model.Lead.FullName</h2>
+            @if (Model.Lead.Status == LeadStatus.Converted)
+            {
+                <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>Converted</span>
+            }
+            else
+            {
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">@Model.Lead.Status</span>
+            }
+            <span class="badge bg-light text-dark border">Priority: @Model.Lead.Priority</span>
+        </div>
+        <p class="text-muted mb-0">Lead ID: #@Model.Lead.Id &bull; Created @Model.Lead.CreatedAtUtc.ToString("MMM dd, yyyy") &bull; Source: @Model.Lead.Source</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (Model.Lead.Status != LeadStatus.Converted)
+        {
+            <a asp-action="Convert" asp-route-id="@Model.Lead.Id" class="btn btn-success">
+                <i class="bi bi-arrow-repeat me-1"></i> Convert to Customer
+            </a>
+            <a asp-controller="FollowUp" asp-action="Create" asp-route-leadId="@Model.Lead.Id" class="btn btn-outline-info">
+                <i class="bi bi-calendar-plus me-1"></i> Schedule Activity
+            </a>
+        }
+        <a asp-action="Edit" asp-route-id="@Model.Lead.Id" class="btn btn-secondary">
+            <i class="bi bi-pencil me-1"></i> Edit
+        </a>
+        <form asp-action="Delete" asp-route-id="@Model.Lead.Id" method="post" onsubmit="return confirm('Are you sure you want to deactivate or remove this lead?');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+@if (Model.Lead.Status == LeadStatus.Converted)
+{
+    <div class="alert alert-success border-0 shadow-sm d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-award-fill fs-3 me-3 text-success"></i>
+            <div>
+                <h6 class="fw-bold mb-0">This lead was successfully converted on @Model.Lead.ConvertedAtUtc?.ToString("MMM dd, yyyy HH:mm")</h6>
+                <div class="small text-muted">Customer Account and Opportunity records were generated and linked.</div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            @if (Model.Lead.ConvertedCustomerId.HasValue)
+            {
+                <a asp-controller="Customer" asp-action="Details" asp-route-id="@Model.Lead.ConvertedCustomerId.Value" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-building me-1"></i> View Customer (#@Model.Lead.ConvertedCustomerId)
+                </a>
+            }
+            @if (Model.Lead.ConvertedOpportunityId.HasValue)
+            {
+                <a asp-controller="Opportunity" asp-action="Details" asp-route-id="@Model.Lead.ConvertedOpportunityId.Value" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-graph-up me-1"></i> View Deal (#@Model.Lead.ConvertedOpportunityId)
+                </a>
+            }
+        </div>
+    </div>
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="card crm-card h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-person-lines-fill text-primary me-2"></i>Lead Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase fw-semibold">Company / Organization</label>
+                    <div class="fw-bold fs-6">@(Model.Lead.Company ?? "Individual Prospect")</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase fw-semibold">Email</label>
+                    <div><a href="mailto:@Model.Lead.Email" class="text-decoration-none fw-medium">@Model.Lead.Email</a></div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase fw-semibold">Phone</label>
+                    <div class="fw-medium">@(Model.Lead.Phone ?? "Not provided")</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase fw-semibold">Lead Source</label>
+                    <div><span class="badge bg-light text-dark border">@Model.Lead.Source</span></div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase fw-semibold">Assigned To</label>
+                    <div>
+                        <span class="badge bg-light text-dark border">
+                            @(Model.Lead.AssignedTo?.FullName ?? Model.Lead.AssignedTo?.UserName ?? "Unassigned")
+                        </span>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Lead.Notes))
+                {
+                    <div>
+                        <label class="text-muted small text-uppercase fw-semibold">Qualification Notes</label>
+                        <div class="p-2 bg-light rounded text-secondary small">@Model.Lead.Notes</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card crm-card">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0"><i class="bi bi-calendar-check text-info me-2"></i>Scheduled Activities & Follow-ups (@Model.FollowUps.Count)</h5>
+                @if (Model.Lead.Status != LeadStatus.Converted)
+                {
+                    <a asp-controller="FollowUp" asp-action="Create" asp-route-leadId="@Model.Lead.Id" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-plus-lg"></i> Add
+                    </a>
+                }
+            </div>
+            <div class="table-responsive">
+                <table class="table crm-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Type</th>
+                            <th>Scheduled Date</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.FollowUps.Any())
+                        {
+                            @foreach (var f in Model.FollowUps)
+                            {
+                                <tr>
+                                    <td>@f.Subject</td>
+                                    <td><span class="badge bg-light text-dark border">@f.Type</span></td>
+                                    <td class="small">@f.ScheduledDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td class="small">@(f.AssignedTo?.FullName ?? f.AssignedTo?.UserName ?? "-")</td>
+                                    <td>
+                                        @if (f.Status == FollowUpStatus.Completed)
+                                        {
+                                            <span class="badge bg-success-subtle text-success">Completed</span>
+                                        }
+                                        else if (f.Status == FollowUpStatus.Planned && f.ScheduledDate < DateTime.UtcNow)
+                                        {
+                                            <span class="badge bg-danger-subtle text-danger">Overdue</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-primary-subtle text-primary">@f.Status</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted small">No activities recorded for this lead yet.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,130 @@
+@model AcxiomCRM.Models.ViewModels.CustomerListViewModel
+@{
+    ViewData["Title"] = "Customer Management";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-buildings text-primary me-2"></i>Customers</h2>
+        <p class="text-muted mb-0">Manage customer accounts, relationships, and history.</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> New Customer
+        </a>
+    </div>
+</div>
+
+<div class="card crm-card mb-4">
+    <div class="card-body p-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" value="@Model.Search" class="form-control border-start-0" placeholder="Search by name, email, or phone..." />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- All Statuses --</option>
+                    @foreach (var s in Enum.GetValues<CustomerStatus>())
+                    {
+                        <option value="@s" selected="@(Model.Status == s)">@s</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary flex-grow-1">Filter</button>
+                @if (!string.IsNullOrEmpty(Model.Search) || Model.Status.HasValue)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card crm-card">
+    <div class="table-responsive">
+        <table class="table crm-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Email Address</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Customers.Any())
+                {
+                    @foreach (var c in Model.Customers)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@c.Id" class="fw-bold text-decoration-none text-dark">
+                                    @c.Name
+                                </a>
+                            </td>
+                            <td><a href="mailto:@c.Email" class="text-secondary text-decoration-none">@c.Email</a></td>
+                            <td>@(c.Phone ?? "-")</td>
+                            <td>
+                                @if (c.Status == CustomerStatus.Active)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @(c.AssignedTo?.FullName ?? c.AssignedTo?.UserName ?? "Unassigned")
+                                </span>
+                            </td>
+                            <td class="text-muted small">@c.CreatedAtUtc.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@c.Id" class="btn btn-outline-secondary" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                            No customer records found matching your criteria.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+            <span class="small text-muted">Showing page @Model.Page of @Model.TotalPages (Total: @Model.TotalCount)</span>
+            <ul class="pagination pagination-sm mb-0">
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-search="@Model.Search" asp-route-status="@Model.Status">@p</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>

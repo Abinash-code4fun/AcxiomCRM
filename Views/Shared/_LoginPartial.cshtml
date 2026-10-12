@@ -1,0 +1,39 @@
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav align-items-center">
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+    var primaryRole = roles.FirstOrDefault() ?? "User";
+
+    <li class="nav-item d-flex align-items-center me-3">
+        <div class="user-chip d-flex align-items-center py-1 px-2 rounded-pill bg-light border">
+            <div class="user-avatar-circle bg-primary text-white me-2">
+                @((currentUser?.FullName?.Length > 0 ? currentUser.FullName[0] : (User.Identity?.Name?.Length > 0 ? User.Identity.Name[0] : 'U')).ToString().ToUpperInvariant())
+            </div>
+            <div class="d-flex flex-column me-2 text-start">
+                <span class="user-name small fw-bold text-dark lh-sm">@(currentUser?.FullName ?? User.Identity?.Name)</span>
+                <span class="badge badge-role role-@primaryRole.ToLowerInvariant()">@primaryRole</span>
+            </div>
+        </div>
+    </li>
+    <li class="nav-item">
+        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-outline-danger px-3 rounded-pill">
+                Sign Out
+            </button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-secondary fw-semibold px-3" asp-controller="Account" asp-action="Login">Sign In</a>
+    </li>
+    <li class="nav-item">
+        <a class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm fw-semibold" asp-controller="Account" asp-action="Register">Create Account</a>
+    </li>
+}
+</ul>

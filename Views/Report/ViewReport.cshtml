@@ -1,0 +1,60 @@
+@model AcxiomCRM.Services.ReportResult
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h2 class="fw-bold mb-0"><i class="bi bi-file-earmark-spreadsheet text-primary me-2"></i>@Model.Title</h2>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">@Model.Rows.Count Records</span>
+        </div>
+        <p class="text-muted mb-0">Live report generated on @DateTime.UtcNow.ToString("MMM dd, yyyy HH:mm") UTC.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Reports Center
+        </a>
+        <a asp-action="ExportCsv" asp-route-reportType="@ViewBag.ReportType" asp-route-filter="@ViewBag.Filter" class="btn btn-success shadow-sm">
+            <i class="bi bi-download me-1"></i> Download CSV
+        </a>
+    </div>
+</div>
+
+<div class="card crm-card">
+    <div class="table-responsive">
+        <table class="table crm-table align-middle mb-0">
+            <thead>
+                <tr>
+                    @foreach (var h in Model.Headers)
+                    {
+                        <th>@h</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Rows.Any())
+                {
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            @foreach (var cell in row)
+                            {
+                                <td>@cell</td>
+                            }
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="@Model.Headers.Count" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                            No records found for this report.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
