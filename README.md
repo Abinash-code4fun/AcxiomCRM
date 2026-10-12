@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 # AcxiomCRM — Enterprise Customer Relationship Management System
-
-AcxiomCRM is an enterprise-grade Customer Relationship Management (CRM) application built on **ASP.NET Core (.NET 10)**, **Entity Framework Core 10.0.12**, and **SQL Server LocalDB**. It features strict Role-Based Access Control (RBAC), transactional lead conversion, automated audit trailing, live Chart.js analytics, streaming CSV exports, and secured RESTful APIs.
-
----
 
 ## 🏛️ Architecture & Tech Stack
 
@@ -145,5 +140,3 @@ All API endpoints require authentication and return standard HTTP response codes
    - **Email**: `admin@acxiomcrm.local`
    - **Password**: `Admin@Acxiom2026!`
 =======
-# AcxiomCRM
->>>>>>> 6b2d0c3d243d4d4ea5b0833cd02e1a4ab11be09f
